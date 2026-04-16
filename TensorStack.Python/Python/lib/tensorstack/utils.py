@@ -1,5 +1,6 @@
 import os
-os.environ["HF_HUB_DISABLE_TELEMETRY"] = "True"
+os.environ["HF_HUB_DISABLE_SYMLINKS"] = "1"
+os.environ["HF_HUB_DISABLE_TELEMETRY"] = "1"
 import json
 import gc
 import sys
@@ -15,7 +16,7 @@ import tensorstack.data_objects as DataObjects
 from tensorstack.enums import ProcessType, MemoryMode
 from PIL import Image
 from dataclasses import asdict
-from huggingface_hub import hf_hub_download, snapshot_download
+from huggingface_hub import hf_hub_download, snapshot_download, scan_cache_dir
 from collections.abc import Buffer
 from typing import Sequence, Optional, List, Tuple, Union, Any, Dict
 from diffusers.loaders import FromSingleFileMixin
@@ -109,6 +110,10 @@ def get_device_map(config: DataObjects.PipelineConfig, execution_device: str):
         return "cuda"
     elif config.memory_mode == MemoryMode.OffloadCPU:
         return None
+
+    if config.is_device_quantization_enabled:
+        return "cuda"
+
     return None
 
 
@@ -330,6 +335,7 @@ def get_pipeline_config(repo_id: str, cache_dir: str, secure_token: str, is_offl
         except Exception:
             config_paths[comp] = None
 
+    prune_revisions(cache_dir)
     return config_paths
 
 
@@ -386,6 +392,20 @@ def load_pipeline_component(config: DataObjects.PipelineConfig, pipeline: FromSi
 
     except Exception:
         return None
+
+
+def prune_revisions(cache_dir: str):
+    # Delete detached revisions (those not pointed to by any ref/branch)
+    collections = scan_cache_dir(cache_dir=cache_dir)
+    to_delete = [
+        revision.commit_hash
+        for repo in collections.repos
+        for revision in repo.revisions
+        if len(revision.refs) == 0
+    ]
+
+    strategy = collections.delete_revisions(*to_delete)
+    strategy.execute()
 
 
 #------------------------------------------------

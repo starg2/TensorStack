@@ -36,6 +36,9 @@ namespace TensorStack.Python.Config
         [JsonPropertyName("is_optimize_channels_enabled")]
         public bool IsOptimizeChannelsEnabled { get; set; } = false;
 
+        [JsonPropertyName("is_device_quantization_enabled")]
+        public bool IsDeviceQuantizationEnabled { get; set; } = false;
+
         [JsonPropertyName("variant")]
         public string Variant { get; set; }
 

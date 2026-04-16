@@ -18,17 +18,18 @@ namespace TensorStack.Python.Config
             "wheel==0.45.1",
             "transformers==4.57.3",
             "accelerate==1.12.0",
-            "diffusers@https://github.com/huggingface/diffusers/archive/5570f817da44520d25c053d7da562bd5b2f46989.zip",
+            "diffusers@https://github.com/huggingface/diffusers/archive/8070f6ec54a7699d5ee285090d9735d9c9b205d7.zip",
             "protobuf==6.33.2",
             "sentencepiece==0.2.1",
             "ftfy==6.3.1",
             "scipy==1.16.3",
-            "peft==0.18.0",
+            "peft==0.18.1",
             "hf-xet==1.2.0",
             "torchsde==0.2.6",
-            "optimum-quanto==0.2.7",
             "gguf==0.17.1",
-            "av==16.1.0"
+            "av==16.1.0",
+            "optimum-quanto==0.2.7",
+            "bitsandbytes==0.49.2"
         ];
 
 
@@ -86,12 +87,13 @@ namespace TensorStack.Python.Config
             },
             Requirements =
             [
-                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm-7.2.0.dev0.tar.gz",
-                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm_sdk_core-7.2.0.dev0-py3-none-win_amd64.whl",
-                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm_sdk_devel-7.2.0.dev0-py3-none-win_amd64.whl",
-                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/rocm_sdk_libraries_custom-7.2.0.dev0-py3-none-win_amd64.whl",
-                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/torch-2.9.1%2Brocmsdk20260116-cp312-cp312-win_amd64.whl",
-                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2/torchvision-0.24.1%2Brocmsdk20260116-cp312-cp312-win_amd64.whl",
+                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm-7.2.1.tar.gz",
+                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm_sdk_core-7.2.1-py3-none-win_amd64.whl",
+                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm_sdk_devel-7.2.1-py3-none-win_amd64.whl",
+                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/rocm_sdk_libraries_custom-7.2.1-py3-none-win_amd64.whl",
+                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/torch-2.9.1%2Brocm7.2.1-cp312-cp312-win_amd64.whl",
+                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/torchaudio-2.9.1%2Brocm7.2.1-cp312-cp312-win_amd64.whl",
+                "https://repo.radeon.com/rocm/windows/rocm-rel-7.2.1/torchvision-0.24.1%2Brocm7.2.1-cp312-cp312-win_amd64.whl",
                 ..DefaultRequirements,
             ]
         };

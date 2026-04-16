@@ -88,6 +88,7 @@ class PipelineConfig:
 
     is_optimize_device_enabled: bool = False
     is_optimize_channels_enabled: bool = False
+    is_device_quantization_enabled: bool = False
 
     # HF / loading
     variant: Optional[str] = None

@@ -110,9 +110,16 @@
 
   <!--LTX2Pipeline-->
   <ItemGroup>
-    <Content Include="Pipelines\LTX2Pipeline.py" PackagePath="contentFiles\any\any\Pipelines\" CopyToOutputDirectory="PreserveNewest" PackageCopyToOutput="true" />
-    <None Include="Pipelines\LTX2Pipeline.py" Pack="false" />
+    <Content Include="Pipelines\LTX20Pipeline.py" PackagePath="contentFiles\any\any\Pipelines\" CopyToOutputDirectory="PreserveNewest" PackageCopyToOutput="true" />
+    <None Include="Pipelines\LTX20Pipeline.py" Pack="false" />
   </ItemGroup>
+
+  <!--LTX2.3Pipeline-->
+  <ItemGroup>
+    <Content Include="Pipelines\LTX23Pipeline.py" PackagePath="contentFiles\any\any\Pipelines\" CopyToOutputDirectory="PreserveNewest" PackageCopyToOutput="true" />
+    <None Include="Pipelines\LTX23Pipeline.py" Pack="false" />
+  </ItemGroup>
+
 
   <!--QwenImagePipeline-->
   <ItemGroup>
