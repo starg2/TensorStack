@@ -373,6 +373,7 @@ def load_text_encoder(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[
             local_files_only=config.is_offline_mode,
             device_map=_device_map,
             token=config.secure_token,
+            cache_dir=config.cache_directory,
             quantization_config=Quantization.auto_single_file_config(config, QuantTarget.TEXT_ENCODER, is_gguf),
         )
 
@@ -424,6 +425,7 @@ def load_transformer(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[s
             local_files_only=config.is_offline_mode,
             device_map=_device_map,
             token=config.secure_token,
+            cache_dir=config.cache_directory,
             quantization_config=Quantization.auto_single_file_config(config, QuantTarget.TRANSFORMER, is_gguf),
         )
 
@@ -473,6 +475,7 @@ def load_vae(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[str, str]
             local_files_only=config.is_offline_mode,
             device_map=_device_map,
             token=config.secure_token,
+            cache_dir=config.cache_directory,
         )
         Utils.trim_memory(True)
         return auto_encoder
@@ -517,5 +520,6 @@ def load_control_net(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[s
     #     low_cpu_mem_usage=True,
     #     local_files_only=config.control_net.is_offline_mode,
     #     device_map=_device_map,
+    #     cache_dir=config.cache_directory,
     # )
     return None

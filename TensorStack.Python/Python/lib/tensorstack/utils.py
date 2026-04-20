@@ -350,7 +350,14 @@ def load_lora_weights(pipeline: Any, config: DataObjects.PipelineConfig):
     if config.lora_adapters is not None:
         for lora in config.lora_adapters:
             print(f"[Load] Loading LoRA Adapter, Name: {lora.name}, IsOffline: {lora.is_offline_mode}")
-            pipeline.load_lora_weights(lora.path, weight_name=lora.weights, adapter_name=lora.name, local_files_only=lora.is_offline_mode)
+            pipeline.load_lora_weights(
+                lora.path,
+                weight_name=lora.weights,
+                adapter_name=lora.name,
+                local_files_only=lora.is_offline_mode,
+                cache_dir=config.cache_directory,
+                token=config.secure_token,
+            )
 
 
 #------------------------------------------------

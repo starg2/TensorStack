@@ -447,6 +447,7 @@ def load_unet(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[str, str
             device_map=_device_map,
             local_files_only=config.is_offline_mode,
             token=config.secure_token,
+            cache_dir=config.cache_directory,
             quantization_config=Quantization.auto_single_file_config(config, QuantTarget.TRANSFORMER, is_gguf)
         )
 
@@ -532,6 +533,7 @@ def load_control_net(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[s
         low_cpu_mem_usage=True,
         local_files_only=config.control_net.is_offline_mode,
         device_map=_device_map,
+        cache_dir=config.cache_directory,
     )
     return _control_net_cache
 
