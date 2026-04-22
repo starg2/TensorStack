@@ -20,6 +20,7 @@ from huggingface_hub import hf_hub_download, snapshot_download, scan_cache_dir
 from collections.abc import Buffer
 from typing import Sequence, Optional, List, Tuple, Union, Any, Dict
 from diffusers.loaders import FromSingleFileMixin
+from diffusers.loaders.lora_base import _fetch_state_dict
 from diffusers import (
     DDIMScheduler,
     DDPMScheduler,
@@ -357,6 +358,27 @@ def load_lora_weights(pipeline: Any, config: DataObjects.PipelineConfig):
                 local_files_only=lora.is_offline_mode,
                 cache_dir=config.cache_directory,
                 token=config.secure_token,
+            )
+
+
+#------------------------------------------------
+# Download the LoRA weights
+#------------------------------------------------
+def download_lora_weights(config: DataObjects.PipelineConfig):
+    if config.lora_adapters is not None:
+        for lora in config.lora_adapters:
+            print(f"[Load] Downloading LoRA Adapter, Name: {lora.name}")
+            hf_hub_download(
+                lora.path,
+                filename=lora.weights,
+                cache_dir=config.cache_directory,
+                force_download=False,
+                proxies=None,
+                local_files_only=False,
+                token=config.secure_token,
+                user_agent="TensorStack-Diffuse",
+                subfolder=None,
+                revision=None,
             )
 
 

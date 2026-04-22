@@ -66,6 +66,19 @@ def download(config_args: Dict[str, Any]):
 
     _device_map = "meta"
     _config = DataObjects.PipelineConfig(**config_args)
+
+    if _config.lora_adapters is not None:
+        print(f"[Download] Download Lora Adapter")
+        _progress_tracker = Utils.ModelDownloadProgress(total_models=1)
+        Utils.download_lora_weights(_config)
+        return True
+    elif _config.control_net.name is not None:
+        print(f"[Download] Download ControlNet")
+        _progress_tracker = Utils.ModelDownloadProgress(total_models=1)
+        load_control_net(_config, None)
+        return True
+
+    print(f"[Download] Download Pipeline")
     _progress_tracker = Utils.ModelDownloadProgress(total_models=get_model_count(_config))
     _pipeline_config = Utils.get_pipeline_config(_config.base_model_path, _config.cache_directory, _config.secure_token, _config.is_offline_mode)
     create_pipeline(_config, True)

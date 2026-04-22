@@ -246,7 +246,7 @@ namespace TensorStack.Audio.Windows
             }
             finally
             {
-                FileHelper.DeleteFile(tempFile);
+                FileHelper.QueueDeleteFile(tempFile);
             }
         }
 
@@ -274,7 +274,7 @@ namespace TensorStack.Audio.Windows
             }
             finally
             {
-                FileHelper.DeleteFile(tempFile);
+                FileHelper.QueueDeleteFile(tempFile);
             }
         }
 

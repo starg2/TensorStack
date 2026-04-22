@@ -7,7 +7,36 @@ namespace TensorStack.Common.Common
 {
     public static class FileHelper
     {
+        /// <summary>
+        /// Deletes the file.
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        /// <returns><c>true</c> if deleted, <c>false</c> otherwise.</returns>
         public static bool DeleteFile(string filename)
+        {
+            return TryDelete(filename);
+        }
+
+
+        /// <summary>
+        /// Deletes the files.
+        /// </summary>
+        /// <param name="filenames">The filenames.</param>
+        public static void DeleteFiles(params string[] filenames)
+        {
+            foreach (string filename in filenames)
+            {
+                TryDelete(filename);
+            }
+        }
+
+
+        /// <summary>
+        /// Queues the file for deletion files with retry. (5 retries, 500ms delay)
+        /// </summary>
+        /// <param name="filename">The filename.</param>
+        /// <returns><c>true</c> if queued, <c>false</c> otherwise.</returns>
+        public static bool QueueDeleteFile(string filename)
         {
             try
             {
@@ -24,15 +53,24 @@ namespace TensorStack.Common.Common
         }
 
 
-        public static void DeleteFiles(params string[] filenames)
+        /// <summary>
+        /// Queues the files for deletion files with retry. (5 retries, 500ms delay)
+        /// </summary>
+        /// <param name="filenames">The filenames.</param>
+        public static void QueueDeleteFiles(params string[] filenames)
         {
             foreach (string filename in filenames)
             {
-                DeleteFile(filename);
+                QueueDeleteFile(filename);
             }
         }
 
 
+        /// <summary>
+        /// Deletes the directory.
+        /// </summary>
+        /// <param name="directory">The directory.</param>
+        /// <param name="recursive">if set to <c>true</c> recursive delete.</param>
         public static bool DeleteDirectory(string directory, bool recursive = true)
         {
             try
@@ -50,6 +88,10 @@ namespace TensorStack.Common.Common
         }
 
 
+        /// <summary>
+        /// Genetare a random filename
+        /// </summary>
+        /// <param name="extension">The extension.</param>
         public static string RandomFileName(string extension)
         {
             var ext = Path.HasExtension(extension) ? Path.GetExtension(extension) : extension;
@@ -57,10 +99,44 @@ namespace TensorStack.Common.Common
         }
 
 
+        /// <summary>
+        /// Genetare a random filename
+        /// </summary>
+        /// <param name="directory">The directory.</param>
+        /// <param name="extension">The extension.</param>
         public static string RandomFileName(string directory, string extension)
         {
             Directory.CreateDirectory(directory);
             return Path.Combine(directory, RandomFileName(extension));
+        }
+
+
+        /// <summary>
+        /// Finds the file in the specified folder tree.
+        /// </summary>
+        /// <param name="directory">The directory.</param>
+        /// <param name="filename">The filename.</param>
+        /// <param name="searchOption">The search option.</param>
+        public static FileInfo FindFile(string directory, string filename, SearchOption searchOption = SearchOption.AllDirectories)
+        {
+            var file = Directory.EnumerateFiles(directory, filename, searchOption).FirstOrDefault();
+            if (string.IsNullOrEmpty(file))
+                return default;
+
+            return new FileInfo(file);
+        }
+
+
+        /// <summary>
+        /// Determines whether the directory empty
+        /// </summary>
+        /// <param name="directory">The directory.</param>
+        public static bool IsDirectoryEmpty(string directory)
+        {
+            if (!Directory.Exists(directory))
+                return false;
+
+            return !Directory.EnumerateFileSystemEntries(directory).Any();
         }
 
 
@@ -107,6 +183,21 @@ namespace TensorStack.Common.Common
                 }
             }
             return minUrlSegmentLength;
+        }
+
+
+        private static bool TryDelete(string filename)
+        {
+            try
+            {
+                if (!File.Exists(filename))
+                    return true;
+
+                File.Delete(filename);
+                return true;
+            }
+            catch (IOException) { return false; }
+            catch (UnauthorizedAccessException) { return false; }
         }
     }
 }
