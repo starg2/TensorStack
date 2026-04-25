@@ -14,7 +14,8 @@ from transformers import Qwen3ForCausalLM
 from diffusers import (
     AutoencoderKLFlux2,
     Flux2Transformer2DModel,
-    Flux2KleinPipeline
+    Flux2KleinPipeline,
+    Flux2KleinInpaintPipeline
 )
 
 # Globals
@@ -36,8 +37,8 @@ _cancel_event = Event()
 _stopwatch = None
 _pipelineMap = {
     ProcessType.TextToImage: Flux2KleinPipeline,
-    ProcessType.ImageToImage: Flux2KleinPipeline,
     ProcessType.ImageEdit: Flux2KleinPipeline,
+    ProcessType.ImageInpaint: Flux2KleinInpaintPipeline,
 }
 
 
@@ -263,7 +264,6 @@ def generate(
     # Pipeline Options
     (prompt_embeds, negative_prompt_embeds) = _prompt_cache_value
     pipeline_options = {
-        "image": images,
         "prompt_embeds": prompt_embeds,
         "negative_prompt_embeds": negative_prompt_embeds,
         "height": options.height,
@@ -275,6 +275,12 @@ def generate(
         "callback_on_step_end": _progress_callback,
         "callback_on_step_end_tensor_inputs": ["latents"],
     }
+
+    if _processType == ProcessType.ImageEdit:
+        pipeline_options.update({ "image": images})
+
+    if _processType == ProcessType.ImageInpaint:
+        pipeline_options.update({ "image": images[0], "mask_image": images[1], "strength": options.strength})
 
     # Run Pipeline
     output = _pipeline(**pipeline_options)[0]
