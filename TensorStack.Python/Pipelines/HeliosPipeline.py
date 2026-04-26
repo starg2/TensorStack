@@ -398,7 +398,6 @@ def load_text_encoder(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[
     text_encoder = UMT5EncoderModel.from_pretrained(
         "TensorStack/TextEncoder",
         subfolder="UMT5-XXL",
-        config=_pipeline_config["text_encoder"],
         torch_dtype=config.data_type,
         quantization_config=Quantization.auto_pretrained_config(config, QuantTarget.TEXT_ENCODER),
         use_safetensors=True,

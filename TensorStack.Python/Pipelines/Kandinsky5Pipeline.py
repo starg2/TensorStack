@@ -393,7 +393,6 @@ def load_text_encoder(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[
     text_encoder = Qwen2_5_VLForConditionalGeneration.from_pretrained(
         "TensorStack/TextEncoder",
         subfolder="Qwen-2.5-VL-7B",
-        config=_pipeline_config["text_encoder"],
         torch_dtype=config.data_type,
         quantization_config=Quantization.auto_pretrained_config(config, QuantTarget.TEXT_ENCODER),
         use_safetensors=True,
@@ -432,7 +431,6 @@ def load_text_encoder_2(config: DataObjects.PipelineConfig, pipeline_kwargs: Dic
     text_encoder = CLIPTextModel.from_pretrained(
         "TensorStack/TextEncoder",
         subfolder="CLIP-VIT-L",
-        config=_pipeline_config["text_encoder_2"],
         torch_dtype=config.data_type,
         use_safetensors=True,
         low_cpu_mem_usage=True,

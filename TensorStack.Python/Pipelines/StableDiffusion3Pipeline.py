@@ -383,7 +383,6 @@ def load_text_encoder(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[
     text_encoder = CLIPTextModelWithProjection.from_pretrained(
         "TensorStack/TextEncoder",
         subfolder="CLIP-VIT-L",
-        config=_pipeline_config["text_encoder"],
         torch_dtype=config.data_type,
         use_safetensors=True,
         low_cpu_mem_usage=True,
@@ -422,7 +421,6 @@ def load_text_encoder_2(config: DataObjects.PipelineConfig, pipeline_kwargs: Dic
     text_encoder = CLIPTextModelWithProjection.from_pretrained(
         "TensorStack/TextEncoder",
         subfolder="CLIP-VIT-G",
-        config=_pipeline_config["text_encoder_2"],
         torch_dtype=config.data_type,
         use_safetensors=True,
         low_cpu_mem_usage=True,
@@ -469,13 +467,12 @@ def load_text_encoder_3(config: DataObjects.PipelineConfig, pipeline_kwargs: Dic
     text_encoder = T5EncoderModel.from_pretrained(
         "TensorStack/TextEncoder",
         subfolder="T5-XXL",
-        config=_pipeline_config["text_encoder_3"],
         torch_dtype=config.data_type,
         quantization_config=Quantization.auto_pretrained_config(config, QuantTarget.TEXT_ENCODER),
         use_safetensors=True,
         low_cpu_mem_usage=True,
         local_files_only=config.is_offline_mode,
-        device_map=_device_map,
+        device_map=_device_map if _device_map != "meta" else None,
         **pipeline_kwargs
     )
     Utils.trim_memory(True)

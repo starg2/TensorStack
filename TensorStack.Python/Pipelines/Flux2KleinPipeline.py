@@ -373,7 +373,6 @@ def load_text_encoder(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[
     text_encoder = Qwen3ForCausalLM.from_pretrained(
         "TensorStack/TextEncoder",
         subfolder=text_encoder_subfolder,
-        config=text_encoder_config,
         torch_dtype=config.data_type,
         quantization_config=Quantization.auto_pretrained_config(config, QuantTarget.TEXT_ENCODER),
         use_safetensors=True,

@@ -419,7 +419,8 @@ def load_pipeline_component(config: DataObjects.PipelineConfig, pipeline: FromSi
 
         return getattr(pipe, component_name, None)
 
-    except Exception:
+    except Exception as e:
+        print(f"[Load] [LoadPipelineComponent] Error occurred loading component: {e}")
         return None
 
 
@@ -583,6 +584,9 @@ class MemoryStdout:
     def flush(self):
         pass  # no actual flushing needed here
 
+    def isatty(self):
+        return True
+
     def get_log_history(self):
         with self._lock:
             logs_copy = self._log_history[:]
@@ -741,7 +745,7 @@ class ModelDownloadProgress:
             model_progress = sum(x["downloaded"] / max(x["total"], 0.001) for x in current_files) / len(current_files)
 
         scaled_model_progress = int(model_progress * self.total_per_model)
-        if scaled_model_progress <= 0 or filename == "Loading checkpoint shards":
+        if scaled_model_progress <= 0 or filename == "Loading checkpoint shards" or filename == "Loading weights":
             return
 
         overall_progress = self.model_index * self.total_per_model + scaled_model_progress

@@ -286,7 +286,7 @@ def generate(
         "callback_on_step_end": _progress_callback,
         "callback_on_step_end_tensor_inputs": ["latents"],
     }
-    if _processType in (ProcessType.ImageToImage):
+    if _processType == ProcessType.ImageToImage:
         pipeline_options.update({ "image": images })
 
     if _processType == ProcessType.ImageToImage:
@@ -391,7 +391,6 @@ def load_text_encoder(config: DataObjects.PipelineConfig, pipeline_kwargs: Dict[
     text_encoder = Qwen2_5_VLForConditionalGeneration.from_pretrained(
         "TensorStack/TextEncoder",
         subfolder="Qwen-2.5-VL-7B",
-        config=_pipeline_config["text_encoder"],
         torch_dtype=config.data_type,
         quantization_config=Quantization.auto_pretrained_config(config, QuantTarget.TEXT_ENCODER),
         use_safetensors=True,
