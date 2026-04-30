@@ -164,13 +164,15 @@ namespace TensorStack.Video
         /// Get video stream as an asynchronous operation.
         /// </summary>
         /// <param name="videoFile">The video file.</param>
-        /// <param name="frameRateOverride">The frame rate.</param>
-        /// <param name="widthOverride">The width.</param>
-        /// <param name="heightOverride">The height.</param>
+        /// <param name="frameRateOverride">The frame rate override.</param>
+        /// <param name="widthOverride">The width override.</param>
+        /// <param name="heightOverride">The height override.</param>
+        /// <param name="resizeMode">The resize mode.</param>
+        /// <param name="startFrameIndex">Start index of the frame.</param>
+        /// <param name="endFrameIndex">End index of the frame.</param>
         /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>A Task&lt;IAsyncEnumerable`1&gt; representing the asynchronous operation.</returns>
         /// <exception cref="System.Exception">Failed to open video file.</exception>
-        internal static async IAsyncEnumerable<VideoFrame> ReadStreamAsync(string videoFile, float? frameRateOverride = default, int? widthOverride = default, int? heightOverride = default, ResizeMode resizeMode = ResizeMode.Stretch, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        internal static async IAsyncEnumerable<VideoFrame> ReadStreamAsync(string videoFile, float? frameRateOverride = default, int? widthOverride = default, int? heightOverride = default, ResizeMode resizeMode = ResizeMode.Stretch, int startFrameIndex = 0, int? endFrameIndex = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using (var videoReader = new VideoCapture(videoFile))
             {
@@ -178,31 +180,42 @@ namespace TensorStack.Video
                     throw new Exception("Failed to open video file.");
 
                 await Task.Yield();
-                var frameCount = 0;
-                var frameIndex = 0;
+                var sourceFps = (float)videoReader.Fps;
+                var targetFps = frameRateOverride ?? sourceFps;
+                var step = sourceFps / targetFps;
                 var videoSize = new Size(videoReader.FrameWidth, videoReader.FrameHeight);
                 var videoNewSize = GetNewVideoSize(widthOverride, heightOverride, videoSize, resizeMode);
                 var videoCropSize = GetCropVideoSize(widthOverride, heightOverride, videoNewSize, resizeMode);
-                var videoframeRate = GetVideoFrameRate(videoReader.Fps, frameRateOverride);
-                var frameSkipInterval = GetFrameInterval(videoReader.Fps, frameRateOverride);
+                var currentOutputIndex = startFrameIndex;
+                var lastReadRawFrame = -1;
                 using (var frame = new Mat())
                 {
                     while (true)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
+                        if (endFrameIndex.HasValue && currentOutputIndex > endFrameIndex.Value)
+                            break;
 
-                        videoReader.Read(frame);
+                        var targetRawFrame = (int)Math.Round(currentOutputIndex * step);
+                        if (targetRawFrame != lastReadRawFrame)
+                        {
+                            if (targetRawFrame != lastReadRawFrame + 1)
+                                videoReader.PosFrames = targetRawFrame;
+
+                            videoReader.Read(frame);
+                            lastReadRawFrame = targetRawFrame;
+                            if (frame.Empty())
+                                break;
+
+                            if (videoSize != videoNewSize)
+                                Cv2.Resize(frame, frame, videoNewSize);
+                        }
+
                         if (frame.Empty())
                             break;
 
-                        if (frameCount % frameSkipInterval == 0)
-                        {
-                            if (videoSize != videoNewSize)
-                                Cv2.Resize(frame, frame, videoNewSize);
-
-                            yield return new VideoFrame(frameIndex++, frame.ToTensor(videoCropSize), videoframeRate);
-                        }
-                        frameCount++;
+                        yield return new VideoFrame(currentOutputIndex, frame.ToTensor(videoCropSize), targetFps);
+                        currentOutputIndex++;
                     }
                 }
             }

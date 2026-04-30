@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TensorStack.Common;
-using TensorStack.Common.Tensor;
 using TensorStack.Common.Video;
 
 namespace TensorStack.Video
@@ -41,40 +40,38 @@ namespace TensorStack.Video
         /// <returns>IAsyncEnumerable&lt;ImageFrame&gt;.</returns>
         public IAsyncEnumerable<VideoFrame> GetAsync(int? widthOverride = default, int? heightOverride = default, float? frameRateOverride = default, ResizeMode resizeMode = ResizeMode.Stretch, CancellationToken cancellationToken = default)
         {
-            return VideoManager.ReadStreamAsync(SourceFile, frameRateOverride, widthOverride, heightOverride, resizeMode, cancellationToken);
+            return VideoManager.ReadStreamAsync(SourceFile, frameRateOverride, widthOverride, heightOverride, resizeMode, cancellationToken: cancellationToken);
         }
 
 
         /// <summary>
-        /// Saves the VideoFrame stream.
+        /// Gets a frame at the specified index position.
         /// </summary>
-        /// <param name="filename">The filename.</param>
-        /// <param name="stream">The stream.</param>
-        /// <param name="frameRate">The frame rate.</param>
-        /// <param name="width">The width.</param>
-        /// <param name="height">The height.</param>
+        /// <param name="index">The index.</param>
+        /// <param name="widthOverride">The width override.</param>
+        /// <param name="heightOverride">The height override.</param>
+        /// <param name="frameRateOverride">The frame rate override.</param>
+        /// <param name="resizeMode">The resize mode.</param>
         /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>Task.</returns>
-        public Task SaveAsync(IAsyncEnumerable<VideoFrame> stream, string filename, string videoCodec = "mp4v", int? widthOverride = null, int? heightOverride = null, float? frameRateOverride = null, CancellationToken cancellationToken = default)
+        public ValueTask<VideoFrame> GetFrameAsync(int index, int? widthOverride = default, int? heightOverride = default, float? frameRateOverride = default, ResizeMode resizeMode = ResizeMode.Stretch, CancellationToken cancellationToken = default)
         {
-            return VideoManager.WriteVideoStreamAsync(SourceFile, stream, videoCodec, widthOverride, heightOverride, frameRateOverride, cancellationToken);
+            return VideoManager.ReadStreamAsync(SourceFile, frameRateOverride, widthOverride, heightOverride, resizeMode, index, index + 1, cancellationToken: cancellationToken).FirstOrDefaultAsync(CancellationToken.None);
         }
 
 
         /// <summary>
-        /// Create a buffered VideoTensor of this stream.
+        /// Gets a range of frames from the specified start and end indexes.
         /// </summary>
-        /// <param name="width">The width.</param>
-        /// <param name="height">The height.</param>
-        /// <param name="frameRate">The frame rate.</param>
+        /// <param name="index">The index.</param>
+        /// <param name="count">The count.</param>
+        /// <param name="widthOverride">The width override.</param>
+        /// <param name="heightOverride">The height override.</param>
+        /// <param name="frameRateOverride">The frame rate override.</param>
+        /// <param name="resizeMode">The resize mode.</param>
         /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <returns>A Task&lt;VideoTensor&gt; representing the asynchronous operation.</returns>
-        public async Task<VideoTensor> CreateTensorAsync(int? widthOverride = default, int? heightOverride = default, float? frameRateOverride = default, ResizeMode resizeMode = ResizeMode.Stretch, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<VideoFrame> GetFramesAsync(int index, int count, int? widthOverride = default, int? heightOverride = default, float? frameRateOverride = default, ResizeMode resizeMode = ResizeMode.Stretch, CancellationToken cancellationToken = default)
         {
-            var buffered = await GetAsync(widthOverride, heightOverride, frameRateOverride, resizeMode, cancellationToken)
-                .Select(x => x.Frame)
-                .ToArrayAsync(cancellationToken);
-            return new VideoTensor(buffered.Join(), frameRateOverride ?? FrameRate);
+            return VideoManager.ReadStreamAsync(SourceFile, frameRateOverride, widthOverride, heightOverride, resizeMode, index, index + count, cancellationToken: cancellationToken);
         }
 
 

@@ -279,8 +279,13 @@ def generate(
         "callback_on_step_end": _progress_callback,
         "callback_on_step_end_tensor_inputs": ["latents"],
     }
+
     if _processType == ProcessType.ImageToVideo:
-        pipeline_options.update({ "image": images })
+        if image_count == 1:
+            pipeline_options.update({ "image": images })
+        else:
+            pipeline_options.update({ "image": images[0], "last_image": images[1] })
+
     if _processType == ProcessType.VideoToVideo:
         print(f"Input Frames: {len(images)}")
         pipeline_options.update({ "video": images })

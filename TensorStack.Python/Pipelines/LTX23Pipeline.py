@@ -17,10 +17,11 @@ from diffusers import (
     AutoencoderKLLTX2Video,
     LTX2VideoTransformer3DModel,
     LTX2Pipeline,
-    LTX2ImageToVideoPipeline
+    LTX2ConditionPipeline
 )
 from diffusers.pipelines.ltx2.vocoder import LTX2VocoderWithBWE
 from diffusers.pipelines.ltx2.connectors import LTX2TextConnectors
+from diffusers.pipelines.ltx2.pipeline_ltx2_condition import LTX2VideoCondition
 from diffusers.pipelines.ltx2.utils import DEFAULT_NEGATIVE_PROMPT, T2V_DEFAULT_SYSTEM_PROMPT, I2V_DEFAULT_SYSTEM_PROMPT
 
 # Globals
@@ -42,7 +43,7 @@ _cancel_event = Event()
 _stopwatch = None
 _pipelineMap = {
     ProcessType.TextToVideo: LTX2Pipeline,
-    ProcessType.ImageToVideo: LTX2ImageToVideoPipeline
+    ProcessType.ImageToVideo: LTX2ConditionPipeline
 }
 
 
@@ -292,8 +293,18 @@ def generate(
         "callback_on_step_end": _progress_callback,
         "callback_on_step_end_tensor_inputs": ["latents"],
     }
+
+    # Video Conditions
     if _processType == ProcessType.ImageToVideo:
-        pipeline_options.update({ "image": images })
+        conditions = None
+        if image_count == 1:
+            conditions = LTX2VideoCondition(frames=images, index=0, strength=1.0)
+        elif image_count == 2:
+            first_frame = LTX2VideoCondition(frames=images[0], index=0, strength=1.0)
+            last_frame = LTX2VideoCondition(frames=images[1], index=-1, strength=1.0)
+            conditions = [first_frame, last_frame]
+
+        pipeline_options.update({ "conditions": conditions })
 
     # Run Pipeline
     output_video, output_audio = _pipeline(**pipeline_options)
